@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FG-8085 Simulator Toolkit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo-container">
+                <i class="bi bi-cpu-fill"></i>
+                <h1>FG-8085 Simulator Toolkit</h1>
+            </div>
+            <p class="subtitle">A comprehensive simulator for the Intel 8085 microprocessor</p>
+            <div class="header-links">
+                <a href="/help" class="btn btn-outline-light">
+                    <i class="bi bi-question-circle"></i> Help
+                </a>
+            </div>
+        </header>
+        
+        <main class="app-content">
+            <div class="dashboard">
+                <!-- Left Column: Memory Display and Program Controls -->
+                <div class="left-column">
+                    <div class="memory-container">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="bi bi-memory"></i>
+                                <h5>Memory</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="memory-display" class="memory-display"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-sliders"></i>
+                            <h5>Program Controls</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="control-section">
+                                <div class="form-group">
+                                    <label for="program-input">Enter Program (Hex bytes, space-separated):</label>
+                                    <input type="text" class="form-control" id="program-input" placeholder="3E 32 32 32">
+                                </div>
+                                <div class="control-buttons">
+                                    <button id="load-program" class="btn btn-primary">
+                                        <i class="bi bi-upload"></i> Load Program
+                                    </button>
+                                    <button id="step-instruction" class="btn btn-success">
+                                        <i class="bi bi-play-fill"></i> Step
+                                    </button>
+                                    <button id="run-program" class="btn btn-info">
+                                        <i class="bi bi-play-fill"></i> Run Program
+                                    </button>
+                                    <button id="reset-calculator" class="btn btn-danger">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Column: Memory Editor -->
+                <div class="middle-column">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-code-square"></i>
+                            <h5>Memory Editor</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="editor-interface">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="memory-address" maxlength="4" placeholder="0000">
+                                    <input type="text" class="form-control" id="machine-code" maxlength="2" placeholder="00">
+                                </div>
+                                <!-- Navigation Buttons -->
+                                <div class="navigation-buttons">
+                                    <button class="btn btn-primary" onclick="prevAddress()">
+                                        <i class="bi bi-arrow-left"></i> Previous
+                                    </button>
+                                    <button class="btn btn-primary" onclick="nextAddress()">
+                                        Next <i class="bi bi-arrow-right"></i>
+                                    </button>
+                                    <button class="btn btn-info" onclick="goToAddress()">
+                                        <i class="bi bi-search"></i> Go To Address
+                                    </button>
+                                    <button class="btn btn-success" onclick="executeInstruction()">
+                                        <i class="bi bi-play-fill"></i> Execute
+                                    </button>
+                                </div>
+                                <!-- Keypad -->
+                                <div class="keypad">
+                                    <div class="keypad-row">
+                                        <button class="keypad-btn" onclick="appendToInput('0')">0</button>
+                                        <button class="keypad-btn" onclick="appendToInput('1')">1</button>
+                                        <button class="keypad-btn" onclick="appendToInput('2')">2</button>
+                                        <button class="keypad-btn" onclick="appendToInput('3')">3</button>
+                                    </div>
+                                    <div class="keypad-row">
+                                        <button class="keypad-btn" onclick="appendToInput('4')">4</button>
+                                        <button class="keypad-btn" onclick="appendToInput('5')">5</button>
+                                        <button class="keypad-btn" onclick="appendToInput('6')">6</button>
+                                        <button class="keypad-btn" onclick="appendToInput('7')">7</button>
+                                    </div>
+                                    <div class="keypad-row">
+                                        <button class="keypad-btn" onclick="appendToInput('8')">8</button>
+                                        <button class="keypad-btn" onclick="appendToInput('9')">9</button>
+                                        <button class="keypad-btn" onclick="appendToInput('A')">A</button>
+                                        <button class="keypad-btn" onclick="appendToInput('B')">B</button>
+                                    </div>
+                                    <div class="keypad-row">
+                                        <button class="keypad-btn" onclick="appendToInput('C')">C</button>
+                                        <button class="keypad-btn" onclick="appendToInput('D')">D</button>
+                                        <button class="keypad-btn" onclick="appendToInput('E')">E</button>
+                                        <button class="keypad-btn" onclick="appendToInput('F')">F</button>
+                                    </div>
+                                    <div class="keypad-row">
+                                        <button class="keypad-btn" onclick="backspace()">←</button>
+                                        <button class="keypad-btn" onclick="clearInput()">C</button>
+                                        <button class="keypad-btn" onclick="setActiveInput('memory-address')">Addr</button>
+                                        <button class="keypad-btn" onclick="setActiveInput('machine-code')">Code</button>
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Registers and Flags -->
+                <div class="right-column">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-diagram-3"></i>
+                            <h5>Registers</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="register-grid">
+                                <div class="register-item">
+                                    <label>A:</label>
+                                    <span id="reg-A">00</span>
+                                </div>
+                                <div class="register-item">
+                                    <label>B:</label>
+                                    <span id="reg-B">00</span>
+                                </div>
+                                <div class="register-item">
+                                    <label>C:</label>
+                                    <span id="reg-C">00</span>
+                                </div>
+                                <div class="register-item">
+                                    <label>D:</label>
+                                    <span id="reg-D">00</span>
+                                </div>
+                                <div class="register-item">
+                                    <label>E:</label>
+                                    <span id="reg-E">00</span>
+                                </div>
+                                <div class="register-item">
+                                    <label>H:</label>
+                                    <span id="reg-H">00</span>
+                                </div>
+                                <div class="register-item">
+                                    <label>L:</label>
+                                    <span id="reg-L">00</span>
+                                </div>
+                                <div class="register-item">
+                                    <label>PC:</label>
+                                    <span id="reg-PC">0000</span>
+                                </div>
+                                <div class="register-item">
+                                    <label>SP:</label>
+                                    <span id="reg-SP">FFFF</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-flag-fill"></i>
+                            <h5>Flags</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="flags-grid">
+                                <div class="flag-item">
+                                    <label>S:</label>
+                                    <span id="flag-S">0</span>
+                                </div>
+                                <div class="flag-item">
+                                    <label>Z:</label>
+                                    <span id="flag-Z">0</span>
+                                </div>
+                                <div class="flag-item">
+                                    <label>AC:</label>
+                                    <span id="flag-AC">0</span>
+                                </div>
+                                <div class="flag-item">
+                                    <label>P:</label>
+                                    <span id="flag-P">0</span>
+                                </div>
+                                <div class="flag-item">
+                                    <label>CY:</label>
+                                    <span id="flag-CY">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 

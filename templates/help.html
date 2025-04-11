@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FG-8085 Simulator Toolkit - Help</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="static/help-style.css">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo-container">
+                <i class="bi bi-cpu-fill"></i>
+                <h1>FG-8085 Simulator Toolkit</h1>
+            </div>
+            <p class="subtitle">Help Documentation</p>
+            <div class="header-links">
+                <a href="/" class="btn btn-outline-light">
+                    <i class="bi bi-arrow-left"></i> Back to Simulator
+                </a>
+            </div>
+        </header>
+        
+        <main class="app-content">
+            <div class="help-container">
+                <div class="help-section">
+                    <h2><i class="bi bi-info-circle"></i> Overview</h2>
+                    <div class="feature-card">
+                        <h3>About the Simulator</h3>
+                        <p>The FG-8085 Simulator Toolkit is a comprehensive web-based simulator for the Intel 8085 microprocessor. It provides a user-friendly interface for writing, executing, and debugging 8085 assembly programs.</p>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h2><i class="bi bi-keyboard"></i> Shortcut Keys</h2>
+                    <div class="shortcut-keys">
+                        <div class="shortcut-key">
+                            <span class="key">F5</span>
+                            <span class="description">Load Program</span>
+                        </div>
+                        <div class="shortcut-key">
+                            <span class="key">F6</span>
+                            <span class="description">Step Instruction</span>
+                        </div>
+                        <div class="shortcut-key">
+                            <span class="key">F7</span>
+                            <span class="description">Run Program</span>
+                        </div>
+                        <div class="shortcut-key">
+                            <span class="key">F8</span>
+                            <span class="description">Reset Simulator</span>
+                        </div>
+                        <div class="shortcut-key">
+                            <span class="key">Ctrl + M</span>
+                            <span class="description">Toggle Memory Editor</span>
+                        </div>
+                        <div class="shortcut-key">
+                            <span class="key">Ctrl + R</span>
+                            <span class="description">Toggle Registers</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h2><i class="bi bi-book"></i> 8085 Instruction Set</h2>
+                    
+                    <div class="instruction-group">
+                        <h3>1. Data Transfer Instructions</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Instruction</th>
+                                    <th>Description</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>MVI r, data</td>
+                                    <td>Move 8-bit immediate data to register</td>
+                                    <td>MVI A, 32H</td>
+                                </tr>
+                                <tr>
+                                    <td>MOV r1, r2</td>
+                                    <td>Copy contents of register r2 to register r1</td>
+                                    <td>MOV A, B</td>
+                                </tr>
+                                <tr>
+                                    <td>LDA addr</td>
+                                    <td>Load accumulator from memory address</td>
+                                    <td>LDA 2050H</td>
+                                </tr>
+                                <tr>
+                                    <td>STA addr</td>
+                                    <td>Store accumulator contents to memory address</td>
+                                    <td>STA 2050H</td>
+                                </tr>
+                                <tr>
+                                    <td>LHLD addr</td>
+                                    <td>Load H & L registers from memory address</td>
+                                    <td>LHLD 2050H</td>
+                                </tr>
+                                <tr>
+                                    <td>SHLD addr</td>
+                                    <td>Store H & L registers to memory address</td>
+                                    <td>SHLD 2050H</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="instruction-group">
+                        <h3>2. Arithmetic Instructions</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Instruction</th>
+                                    <th>Description</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ADD r</td>
+                                    <td>Add register to accumulator</td>
+                                    <td>ADD B</td>
+                                </tr>
+                                <tr>
+                                    <td>ADI data</td>
+                                    <td>Add immediate data to accumulator</td>
+                                    <td>ADI 32H</td>
+                                </tr>
+                                <tr>
+                                    <td>ADC r</td>
+                                    <td>Add register to accumulator with carry</td>
+                                    <td>ADC C</td>
+                                </tr>
+                                <tr>
+                                    <td>SUB r</td>
+                                    <td>Subtract register from accumulator</td>
+                                    <td>SUB B</td>
+                                </tr>
+                                <tr>
+                                    <td>SUI data</td>
+                                    <td>Subtract immediate data from accumulator</td>
+                                    <td>SUI 32H</td>
+                                </tr>
+                                <tr>
+                                    <td>SBB r</td>
+                                    <td>Subtract register from accumulator with borrow</td>
+                                    <td>SBB C</td>
+                                </tr>
+                                <tr>
+                                    <td>INR r</td>
+                                    <td>Increment register by 1</td>
+                                    <td>INR B</td>
+                                </tr>
+                                <tr>
+                                    <td>DCR r</td>
+                                    <td>Decrement register by 1</td>
+                                    <td>DCR B</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="instruction-group">
+                        <h3>3. Logical Instructions</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Instruction</th>
+                                    <th>Description</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ANA r</td>
+                                    <td>AND register with accumulator</td>
+                                    <td>ANA B</td>
+                                </tr>
+                                <tr>
+                                    <td>ANI data</td>
+                                    <td>AND immediate data with accumulator</td>
+                                    <td>ANI 32H</td>
+                                </tr>
+                                <tr>
+                                    <td>ORA r</td>
+                                    <td>OR register with accumulator</td>
+                                    <td>ORA B</td>
+                                </tr>
+                                <tr>
+                                    <td>ORI data</td>
+                                    <td>OR immediate data with accumulator</td>
+                                    <td>ORI 32H</td>
+                                </tr>
+                                <tr>
+                                    <td>XRA r</td>
+                                    <td>XOR register with accumulator</td>
+                                    <td>XRA B</td>
+                                </tr>
+                                <tr>
+                                    <td>XRI data</td>
+                                    <td>XOR immediate data with accumulator</td>
+                                    <td>XRI 32H</td>
+                                </tr>
+                                <tr>
+                                    <td>CMA</td>
+                                    <td>Complement accumulator</td>
+                                    <td>CMA</td>
+                                </tr>
+                                <tr>
+                                    <td>CMC</td>
+                                    <td>Complement carry flag</td>
+                                    <td>CMC</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="instruction-group">
+                        <h3>4. Branch Instructions</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Instruction</th>
+                                    <th>Description</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>JMP addr</td>
+                                    <td>Unconditional jump to address</td>
+                                    <td>JMP 2050H</td>
+                                </tr>
+                                <tr>
+                                    <td>JZ addr</td>
+                                    <td>Jump if zero flag is set</td>
+                                    <td>JZ 2050H</td>
+                                </tr>
+                                <tr>
+                                    <td>JNZ addr</td>
+                                    <td>Jump if zero flag is not set</td>
+                                    <td>JNZ 2050H</td>
+                                </tr>
+                                <tr>
+                                    <td>JC addr</td>
+                                    <td>Jump if carry flag is set</td>
+                                    <td>JC 2050H</td>
+                                </tr>
+                                <tr>
+                                    <td>JNC addr</td>
+                                    <td>Jump if carry flag is not set</td>
+                                    <td>JNC 2050H</td>
+                                </tr>
+                                <tr>
+                                    <td>CALL addr</td>
+                                    <td>Call subroutine at address</td>
+                                    <td>CALL 2050H</td>
+                                </tr>
+                                <tr>
+                                    <td>RET</td>
+                                    <td>Return from subroutine</td>
+                                    <td>RET</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="instruction-group">
+                        <h3>5. Stack Instructions</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Instruction</th>
+                                    <th>Description</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>PUSH rp</td>
+                                    <td>Push register pair onto stack</td>
+                                    <td>PUSH B</td>
+                                </tr>
+                                <tr>
+                                    <td>POP rp</td>
+                                    <td>Pop register pair from stack</td>
+                                    <td>POP B</td>
+                                </tr>
+                                <tr>
+                                    <td>XTHL</td>
+                                    <td>Exchange H-L with top of stack</td>
+                                    <td>XTHL</td>
+                                </tr>
+                                <tr>
+                                    <td>SPHL</td>
+                                    <td>Copy H-L register pair to stack pointer</td>
+                                    <td>SPHL</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="instruction-group">
+                        <h3>6. I/O Instructions</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Instruction</th>
+                                    <th>Description</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>IN port</td>
+                                    <td>Input from port to accumulator</td>
+                                    <td>IN 01H</td>
+                                </tr>
+                                <tr>
+                                    <td>OUT port</td>
+                                    <td>Output from accumulator to port</td>
+                                    <td>OUT 01H</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="instruction-group">
+                        <h3>7. Machine Control Instructions</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Instruction</th>
+                                    <th>Description</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>HLT</td>
+                                    <td>Halt program execution</td>
+                                    <td>HLT</td>
+                                </tr>
+                                <tr>
+                                    <td>NOP</td>
+                                    <td>No operation</td>
+                                    <td>NOP</td>
+                                </tr>
+                                <tr>
+                                    <td>DI</td>
+                                    <td>Disable interrupts</td>
+                                    <td>DI</td>
+                                </tr>
+                                <tr>
+                                    <td>EI</td>
+                                    <td>Enable interrupts</td>
+                                    <td>EI</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

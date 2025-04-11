@@ -1,0 +1,444 @@
+/* Import digital clock font */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+/* Animation Keyframes */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+@keyframes glow {
+    0% {
+        box-shadow: 0 2px 4px rgba(0, 255, 0, 0.1);
+    }
+    50% {
+        box-shadow: 0 4px 8px rgba(0, 255, 0, 0.2);
+    }
+    100% {
+        box-shadow: 0 2px 4px rgba(0, 255, 0, 0.1);
+    }
+}
+
+/* Custom styles specifically for the Help page */
+.help-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.help-section {
+    margin-bottom: 30px;
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.help-section:hover {
+    animation: glow 2s infinite;
+}
+
+.help-section h2 {
+    color: #00ff00;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.help-section h3 {
+    color: #00ff00;
+    margin: 20px 0 15px 0;
+    font-size: 1.2rem;
+}
+
+.instruction-group {
+    margin-bottom: 25px;
+    animation: float 6s ease-in-out infinite;
+    animation-delay: calc(var(--animation-order) * 0.2s);
+}
+
+.instruction-group:nth-child(1) { --animation-order: 1; }
+.instruction-group:nth-child(2) { --animation-order: 2; }
+.instruction-group:nth-child(3) { --animation-order: 3; }
+.instruction-group:nth-child(4) { --animation-order: 4; }
+.instruction-group:nth-child(5) { --animation-order: 5; }
+.instruction-group:nth-child(6) { --animation-order: 6; }
+.instruction-group:nth-child(7) { --animation-order: 7; }
+
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #e0e0e0 !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: #1a1a1a !important;
+}
+
+.table thead th {
+    background-color: #2a2a2a !important;
+    color: #00ff00 !important;
+    border-bottom: 2px solid #00ff00;
+    padding: 12px;
+    text-align: left;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s ease;
+    background-color: #1a1a1a !important;
+}
+
+.table tbody tr:hover {
+    background-color: #2a2a2a !important;
+}
+
+.table td {
+    padding: 12px;
+    border-bottom: 1px solid #333;
+    color: #e0e0e0 !important;
+    background-color: #1a1a1a !important;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Specific column styling */
+.table td:first-child {
+    color: #00ff00 !important;
+    font-family: monospace;
+    background-color: #1a1a1a !important;
+}
+
+.table td:nth-child(2) {
+    color: #e0e0e0 !important;
+    background-color: #1a1a1a !important;
+}
+
+.table td:last-child {
+    color: #00ff00 !important;
+    font-family: monospace;
+    background-color: #1a1a1a !important;
+}
+
+/* Override Bootstrap's table styles */
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #1a1a1a !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(even) {
+    background-color: #1a1a1a !important;
+}
+
+.table > :not(caption) > * > * {
+    background-color: #1a1a1a !important;
+    color: #e0e0e0 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .help-container {
+        padding: 10px;
+    }
+    
+    .table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .table td, .table th {
+        min-width: 120px;
+    }
+}
+
+.feature-card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-color: var(--primary-color);
+}
+
+.feature-card h3 {
+    color: var(--text-color);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    margin-bottom: 2rem;
+}
+
+.back-button:hover {
+    background-color: var(--active-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.instruction-group {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.instruction-group h3 {
+    color: var(--text-color);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+/* Shortcut Keys Container */
+.shortcut-keys {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.shortcut-key {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.shortcut-key:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-color: var(--primary-color);
+}
+
+.key {
+    background-color: var(--panel-bg);
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+    border: 1px solid var(--border-color);
+}
+
+.description {
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+/* Custom Scrollbar for Help Container */
+.help-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.help-container::-webkit-scrollbar-track {
+    background: var(--panel-bg);
+    border-radius: 4px;
+}
+
+.help-container::-webkit-scrollbar-thumb {
+    background: var(--card-bg);
+    border-radius: 4px;
+}
+
+.help-container::-webkit-scrollbar-thumb:hover {
+    background: var(--hover-color);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .help-container {
+        padding: 15px;
+        max-width: 95%;
+    }
+}
+
+@media (max-width: 992px) {
+    .help-section {
+        padding: 15px;
+    }
+    
+    .help-section h2 {
+        font-size: 1.5rem;
+    }
+    
+    .help-section h3 {
+        font-size: 1.1rem;
+    }
+    
+    .table td, .table th {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .help-container {
+        padding: 10px;
+    }
+    
+    .help-section {
+        margin-bottom: 20px;
+        padding: 12px;
+    }
+    
+    .help-section h2 {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+    }
+    
+    .help-section h3 {
+        font-size: 1rem;
+        margin: 15px 0 10px 0;
+    }
+    
+    .table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table td, .table th {
+        min-width: 120px;
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+    
+    .instruction-group {
+        margin-bottom: 20px;
+    }
+    
+    /* Adjust animation for mobile */
+    .instruction-group {
+        animation: float 4s ease-in-out infinite;
+    }
+}
+
+@media (max-width: 576px) {
+    .help-container {
+        padding: 8px;
+    }
+    
+    .help-section {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .help-section h2 {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+    }
+    
+    .help-section h3 {
+        font-size: 0.95rem;
+        margin: 12px 0 8px 0;
+    }
+    
+    .table td, .table th {
+        min-width: 100px;
+        padding: 6px;
+        font-size: 0.8rem;
+    }
+    
+    /* Make tables more compact on mobile */
+    .table td:first-child,
+    .table td:last-child {
+        font-size: 0.75rem;
+    }
+    
+    .table td:nth-child(2) {
+        font-size: 0.75rem;
+    }
+    
+    /* Reduce animation intensity on mobile */
+    @keyframes float {
+        0% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-5px);
+        }
+        100% {
+            transform: translateY(0px);
+        }
+    }
+    
+    @keyframes glow {
+        0% {
+            box-shadow: 0 1px 2px rgba(0, 255, 0, 0.1);
+        }
+        50% {
+            box-shadow: 0 2px 4px rgba(0, 255, 0, 0.15);
+        }
+        100% {
+            box-shadow: 0 1px 2px rgba(0, 255, 0, 0.1);
+        }
+    }
+}
+
+/* Print styles */
+@media print {
+    .help-container {
+        max-width: 100%;
+        padding: 0;
+    }
+    
+    .help-section {
+        break-inside: avoid;
+        margin-bottom: 20px;
+        box-shadow: none;
+        border: 1px solid #333;
+    }
+    
+    .table {
+        border: 1px solid #333;
+    }
+    
+    .table td, .table th {
+        border: 1px solid #333;
+    }
+    
+    /* Disable animations for print */
+    .instruction-group {
+        animation: none;
+    }
+    
+    .help-section:hover {
+        animation: none;
+    }
+}
