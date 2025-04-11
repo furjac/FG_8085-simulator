@@ -79,10 +79,8 @@ Click the "Reset" button to clear all registers, flags, and memory, returning th
 
 | Shortcut | Action |
 |----------|--------|
-| F5 | Run Program |
-| F10 | Step Instruction |
-| F12 | Reset Simulator |
-| Ctrl + L | Load Program |
+| ENTER | Next memory adress |
+| Shift + ENTER | Prevoious address |
 | Ctrl + G | Go To Address |
 | Ctrl + E | Execute Current Instruction |
 
