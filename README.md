@@ -81,8 +81,6 @@ Click the "Reset" button to clear all registers, flags, and memory, returning th
 |----------|--------|
 | ENTER | Next memory adress |
 | Shift + ENTER | Prevoious address |
-| Ctrl + G | Go To Address |
-| Ctrl + E | Execute Current Instruction |
 
 ## 📚 8085 Instruction Set
 
