@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate - FG-8085 Simulator Toolkit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .donation-container {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .donation-heading {
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 2rem;
+        }
+        
+        .donation-text {
+            color: var(--text-color);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .donation-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .donation-method {
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .donation-method:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .donation-method h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .donation-address {
+            background-color: var(--dark-bg);
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            word-break: break-all;
+            margin-top: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .return-home {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .return-home a {
+            color: var(--primary-color);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .return-home a:hover {
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo-container">
+                <i class="bi bi-cpu-fill"></i>
+                <h1>FG-8085 Simulator Toolkit</h1>
+            </div>
+            <p class="subtitle">A comprehensive simulator for the Intel 8085 microprocessor</p>
+            <div class="header-links">
+                <a href="/" class="btn btn-outline-light me-2">
+                    <i class="bi bi-house-fill"></i> Home
+                </a>
+                <a href="/machine-code" class="btn btn-outline-light me-2">
+                    <i class="bi bi-code-square"></i> Machine Code
+                </a>
+                <a href="/help" class="btn btn-outline-light">
+                    <i class="bi bi-question-circle"></i> Help
+                </a>
+            </div>
+        </header>
+        
+        <main class="app-content">
+            <div class="donation-container">
+                <h2 class="donation-heading">
+                    <i class="bi bi-heart-fill text-danger"></i> Support This Project
+                </h2>
+                
+                <p class="donation-text">
+                    Consider a donation to keep this project alive and for the countless hours of works and testing :)
+                </p>
+                
+                <div class="donation-methods">
+                    <div class="donation-method">
+                        <h3><i class="bi bi-currency-bitcoin"></i> Bitcoin</h3>
+                        <p>Send your contribution to this BTC address:</p>
+                        <div class="donation-address">
+                            14GSZ1293s65JjytCjZMz3AFNSUa4ZVN2V
+                        </div>
+                    </div>
+                    
+                    <div class="donation-method">
+                        <h3><i class="bi bi-shield-lock"></i> Monero (XMR)</h3>
+                        <p>Send your contribution to this XMR address:</p>
+                        <div class="donation-address">
+                            42GyVekn3tufQjYQS9iN79g9MhzfLDgiu3HVAifDfNuW8MA2bi2UPagXo5ZPzA8rupERybjWsMv5HP7azinFbBxcFf9FW86
+                        </div>
+                    </div>
+                    
+                    <div class="donation-method">
+                        <h3><i class="bi bi-phone"></i> UPI</h3>
+                        <p>For users in India, send your contribution via UPI:</p>
+                        <div class="donation-address">
+                            furjack@ybl
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="return-home">
+                    <a href="/">
+                        <i class="bi bi-arrow-left"></i> Return to Simulator
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

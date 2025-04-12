@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, jsonify
-import os
 
 app = Flask(__name__)
 
@@ -39,7 +38,7 @@ class Microprocessor8085:
     def get_state(self):
         """Return the current state of the microprocessor"""
         # Make sure memory is properly initialized
-        if not hasattr(self, 'memory') or not self.memory:
+        if not hasattr(self, 'memory') or not self.memory or len(self.memory) != 65536:
             self.memory = [0x00] * 65536
         
         # Make sure registers are properly initialized
@@ -278,6 +277,17 @@ class Microprocessor8085:
             src_reg = "BCDEHLMA"[(opcode & 0x07)]
             dst_reg = "BCDEHLMA"[((opcode >> 3) & 0x07)]
             
+            # Skip HLT opcode (0x76)
+            if opcode == 0x76:
+                return {'success': True, 'halt': True}
+            
+            # Special handling for MOV B,A (0x47) which is often problematic
+            if opcode == 0x47:  # MOV B,A
+                self.registers['B'] = self.registers['A']
+                self.registers['PC'] = (self.registers['PC'] + 1) & 0xFFFF
+                return {'success': True}
+                
+            # Handle memory access
             if src_reg == 'M':
                 value = self.memory[get_hl_address()]
             else:
@@ -287,8 +297,9 @@ class Microprocessor8085:
                 self.memory[get_hl_address()] = value
             else:
                 self.registers[dst_reg] = value
+                
             self.registers['PC'] = (self.registers['PC'] + 1) & 0xFFFF
-            
+        
         # XCHG instruction
         elif opcode == 0xEB:  # XCHG
             # Exchange H and L with D and E
@@ -338,12 +349,20 @@ class Microprocessor8085:
             self.registers['PC'] = (self.registers['PC'] + 3) & 0xFFFF
             
         elif opcode == 0x3A:  # LDA addr
+            # Get the operand bytes
             addr_low = self.memory[self.registers['PC'] + 1]
             addr_high = self.memory[self.registers['PC'] + 2]
-            addr = (addr_high << 8) | addr_low
-            self.registers['A'] = self.memory[addr]
-            self.registers['PC'] = (self.registers['PC'] + 3) & 0xFFFF
             
+            # Calculate the address
+            addr = (addr_high << 8) | addr_low
+            
+            # Load from memory into accumulator
+            self.registers['A'] = self.memory[addr]
+            
+            # Increment PC by 3 (one for opcode, two for address)
+            self.registers['PC'] = (self.registers['PC'] + 3) & 0xFFFF
+            return {'success': True}
+        
         elif opcode == 0x22:  # SHLD addr
             addr_low = self.memory[self.registers['PC'] + 1]
             addr_high = self.memory[self.registers['PC'] + 2]
@@ -858,6 +877,7 @@ class Microprocessor8085:
         elif opcode == 0x76:  # HLT
             self.is_running = False
             self.registers['PC'] = (self.registers['PC'] + 1) & 0xFFFF
+            return {'success': True, 'halt': True}
         
         else:
             # Unknown opcode - implement more instructions here
@@ -884,6 +904,14 @@ def index():
 def help():
     return render_template('help.html')
 
+@app.route('/machine-code')
+def machine_code():
+    return render_template('machine_code.html')
+
+@app.route('/donate')
+def donate():
+    return render_template('donate.html')
+
 @app.route('/api/reset', methods=['POST'])
 def reset():
     microprocessor.reset()
@@ -893,7 +921,7 @@ def reset():
 def load_program():
     data = request.get_json()
     program = [int(x, 16) for x in data['program'].split()]
-    start_address = data.get('start_address', 0)
+    start_address = int(data.get('start_address', 0))  # Default to 0 if not provided
     microprocessor.load_program(program, start_address)
     return jsonify(microprocessor.get_state())
 
@@ -979,15 +1007,80 @@ def run():
 @app.route('/execute_instruction', methods=['POST'])
 def execute_instruction():
     try:
-        # Execute a single instruction
-        microprocessor.execute_instruction()
+        data = request.get_json()
+        address = data.get('address')
         
-        # Return the current state
-        return jsonify(microprocessor.get_state())
+        # If a specific address is provided, set the PC to that address
+        if address is not None:
+            microprocessor.registers['PC'] = address
+            print(f"Setting PC to: {address:04X}")
+        
+        # Get the current program counter
+        pc = microprocessor.registers['PC']
+        print(f"Current PC: {pc:04X}")
+            
+        # Check if we have a valid instruction at the current address
+        if pc >= len(microprocessor.memory):
+            return jsonify({
+                'success': False,
+                'error': 'Program counter out of bounds'
+            })
+            
+        # Get the opcode
+        opcode = microprocessor.memory[pc]
+        print(f"Opcode at PC: {opcode:02X}")
+        
+        # Get instruction info for history
+        mnemonic, operand = get_instruction_info(opcode, microprocessor.memory, pc)
+        machine_code = format_machine_code(opcode, microprocessor.memory, pc)
+        print(f"Executing: {mnemonic} {operand} (Machine Code: {machine_code})")
+        
+        # Store the original PC to verify it changes properly
+        original_pc = pc
+        
+        # Execute the instruction
+        result = microprocessor.execute_instruction()
+        
+        # Check if the PC was updated
+        new_pc = microprocessor.registers['PC']
+        print(f"New PC after instruction: {new_pc:04X}")
+        
+        # Verify PC moved forward as expected
+        if new_pc == original_pc:
+            print("Warning: PC did not change after execution!")
+        
+        if not result.get('success'):
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Failed to execute instruction')
+            })
+        
+        # Get the updated state
+        state = microprocessor.get_state()
+        
+        # Add instruction to history
+        instruction_history = [{
+            'address': pc,
+            'opcode': opcode,
+            'mnemonic': mnemonic,
+            'operand': operand,
+            'machine_code': machine_code,
+            'registers': state['registers'],
+            'flags': state['flags']
+        }]
+        
+        # Return the current state with instruction history
+        return jsonify({
+            'success': True,
+            'state': state,
+            'instruction_history': instruction_history
+        })
+        
     except Exception as e:
+        print(f"Exception during instruction execution: {str(e)}")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': f'Error executing instruction: {str(e)}'
         })
 
 @app.route('/run_program', methods=['POST'])
@@ -1039,27 +1132,25 @@ def run_from_address():
         data = request.get_json()
         start_address = data.get('address', 0)
         
-        # Get the current state
-        state = microprocessor.get_state()
-        memory = state['memory']
-        pc = start_address
+        # Set the program counter to start address
+        microprocessor.registers['PC'] = start_address
         
         # Execute instructions until HLT is encountered
         instruction_history = []
-        current_address = pc
+        halted = False
         
-        while current_address < 0xFFFF:
-            # Execute the instruction
-            opcode = memory[current_address]
+        while not halted and microprocessor.registers['PC'] < 0xFFFF:
+            # Get the current PC
+            current_address = microprocessor.registers['PC']
             
-            # Get instruction info for history
-            mnemonic, operand = get_instruction_info(opcode, memory, current_address)
+            # Get the current opcode
+            opcode = microprocessor.memory[current_address]
             
-            # Execute the instruction
-            execute_instruction()
+            # Get instruction info for history before execution
+            mnemonic, operand = get_instruction_info(opcode, microprocessor.memory, current_address)
             
-            # Get updated state
-            state = microprocessor.get_state()
+            # Execute the instruction and get the result
+            result = microprocessor.execute_instruction()
             
             # Add to instruction history
             instruction_history.append({
@@ -1067,22 +1158,17 @@ def run_from_address():
                 'opcode': opcode,
                 'mnemonic': mnemonic,
                 'operand': operand,
-                'registers': state['registers'],
-                'flags': state['flags']
+                'machine_code': format_machine_code(opcode, microprocessor.memory, current_address)
             })
             
-            # Check if we hit a HLT instruction
-            if opcode == 0x76:  # HLT instruction
+            # Check if HLT was encountered
+            if opcode == 0x76 or result.get('halt'):
+                halted = True
                 break
-                
-            # Move to next instruction
-            current_address = state['pc']
-            
-            # Safety check - if PC hasn't changed, increment it
-            if current_address == pc:
-                current_address += 1
-            pc = current_address
-            
+        
+        # Get the final state
+        state = microprocessor.get_state()
+        
         return jsonify({
             'success': True,
             'state': state,
@@ -1416,6 +1502,5 @@ def format_machine_code(opcode, memory, pc):
     return machine_code
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(debug=True) 
 

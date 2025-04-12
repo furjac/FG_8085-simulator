@@ -58,6 +58,8 @@ function updateUI(state) {
             if (element && state.registers[reg] !== undefined) {
                 const padding = (reg === 'PC' || reg === 'SP') ? 4 : 2;
                 element.textContent = state.registers[reg].toString(16).toUpperCase().padStart(padding, '0');
+            } else if (!element) {
+                console.warn(`Element for register ${reg} not found in the DOM`);
             }
         }
         
@@ -74,6 +76,8 @@ function updateUI(state) {
         for (const [flag, element] of Object.entries(flagElements)) {
             if (element && state.flags[flag] !== undefined) {
                 element.textContent = state.flags[flag] ? '1' : '0';
+            } else if (!element) {
+                console.warn(`Element for flag ${flag} not found in the DOM`);
             }
         }
         
@@ -83,7 +87,7 @@ function updateUI(state) {
             console.error("Memory address input field not found!");
             return;
         }
-        const currentAddress = parseInt(addressInput.value || '0', 16);
+        const currentAddress = parseInt(addressInput.value, 16);
         console.log(`Current address from input: 0x${currentAddress.toString(16).toUpperCase()}`);
         
         // Calculate starting address for memory display (aligned to 16-byte boundary)
@@ -126,10 +130,10 @@ function updateUI(state) {
                 
                 // Highlight current address and PC
                 if (cellAddress === currentAddress) {
-                    cell.classList.add('current');
+                    cell.classList.add('current-address');
                 }
                 if (cellAddress === state.registers.PC) {
-                    cell.classList.add('pc');
+                    cell.classList.add('program-counter');
                 }
                 
                 // Set cell content
@@ -138,10 +142,10 @@ function updateUI(state) {
                     cell.textContent = value.toString(16).toUpperCase().padStart(2, '0');
                     cell.setAttribute('data-address', cellAddress.toString(16).toUpperCase().padStart(4, '0'));
                 } else {
-                    // Log if memory value is missing unexpectedly
-                    console.warn(`Memory value missing at address 0x${cellAddress.toString(16).toUpperCase()}`);
-                    cell.textContent = '--';
-                    cell.setAttribute('data-address', cellAddress.toString(16).toUpperCase().padStart(4, '0')); // Still set address for potential clicks
+                    // If memory value is missing, show 00 as default
+                    console.warn(`Memory value missing at address 0x${cellAddress.toString(16).toUpperCase()}, defaulting to 00`);
+                    cell.textContent = '00';
+                    cell.setAttribute('data-address', cellAddress.toString(16).toUpperCase().padStart(4, '0'));
                 }
                 
                 rowContainer.appendChild(cell);
@@ -184,12 +188,18 @@ async function loadProgram() {
     }
 
     try {
+        // Get current address from memory address input
+        const currentAddress = parseInt(document.getElementById('memory-address').value, 16);
+        
         const response = await fetch('/api/load', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ program }),
+            body: JSON.stringify({ 
+                program: program,
+                start_address: currentAddress 
+            }),
         });
         
         const state = await response.json();
@@ -347,31 +357,99 @@ function resetCalculator() {
     goToAddress(); // Navigate to 0000 and update UI
 }
 
-// Execute the instruction at the current program counter
-function executeInstruction() {
-    fetch('/execute_instruction', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
+// Execute a single instruction at the current address
+async function executeInstruction() {
+    try {
+        console.log("Executing instruction...");
+        
+        // Get the current address from the input field
+        const addressInput = document.getElementById('memory-address');
+        const currentAddress = parseInt(addressInput.value, 16);
+        
+        if (isNaN(currentAddress) || currentAddress < 0 || currentAddress > 0xFFFF) {
+            throw new Error("Invalid memory address");
         }
-    })
-    .then(response => {
+        
+        // Store the current PC
+        const pc = currentAddress;
+        console.log(`Executing instruction at address: 0x${pc.toString(16).toUpperCase()}`);
+        
+        // Fetch current memory state
+        const memoryResponse = await fetch('/get_memory');
+        const memoryData = await memoryResponse.json();
+        
+        // Get the opcode at this address to know what we're executing
+        const opcode = memoryData.memory[pc];
+        console.log(`Opcode at address ${pc.toString(16).toUpperCase()}: 0x${opcode.toString(16).toUpperCase()}`);
+        
+        // Make sure the PC is set correctly for instruction execution
+        await fetch('/api/goto', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ address: pc })
+        });
+        
+        // Get memory state after PC is set (to be safe)
+        const updatedMemoryResponse = await fetch('/get_memory');
+        const updatedMemoryData = await updatedMemoryResponse.json();
+        
+        // Decode the instruction at the current address
+        const instructionInfo = getInstructionInfo(opcode, updatedMemoryData.memory, pc);
+        console.log(`Executing instruction: ${instructionInfo.mnemonic} ${instructionInfo.operand} (${instructionInfo.machineCode})`);
+        
+        // Update instruction history with the instruction that is about to be executed
+        updateInstructionHistoryTable(
+            pc,
+            instructionInfo.mnemonic,
+            instructionInfo.operand,
+            instructionInfo.machineCode
+        );
+        
+        // Call the execute_instruction endpoint
+        const response = await fetch('/execute_instruction', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ address: pc })
+        });
+        
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            throw new Error(`HTTP error: ${response.status}`);
         }
-        return response.json();
-    })
-    .then(data => {
-        if (data.error) {
-            alert(data.error);
-            return;
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.error || "Error executing instruction");
         }
-        updateState(data);
-    })
-    .catch(error => {
-        console.error('Error executing instruction:', error);
-        alert('Error executing instruction. Please try again.');
-    });
+        
+        // Update the UI with the new state
+        console.log("Received updated state:", data);
+        
+        if (data.state) {
+            // Update the UI
+            updateUI(data.state);
+            console.log("UI updated with new state");
+            
+            // Update memory address input to point to the next instruction
+            const newPC = data.state.registers.PC;
+            console.log(`New PC: ${newPC.toString(16).toUpperCase()}`);
+            addressInput.value = newPC.toString(16).toUpperCase().padStart(4, '0');
+            
+            // Update machine code input to show the value at the new PC
+            const codeInput = document.getElementById('machine-code');
+            if (codeInput && data.state.memory[newPC] !== undefined) {
+                codeInput.value = data.state.memory[newPC].toString(16).toUpperCase().padStart(2, '0');
+            }
+        } else {
+            console.error("No state data received after executing instruction");
+        }
+        
+        console.log("Instruction executed successfully");
+        
+    } catch (error) {
+        console.error("Error executing instruction:", error);
+        alert(`Error executing instruction: ${error.message}`);
+    }
 }
 
 // Get instruction information based on opcode
@@ -620,8 +698,8 @@ function getInstructionInfo(opcode, memory, pc) {
     // Get the instruction info
     const info = instructionSet[opcode] || { mnemonic: 'UNKNOWN', operand: '', length: 1 };
     
-    // Build the machine code string
-    let machineCode = opcode.toString(16).toUpperCase().padStart(2, '0');
+    // Build the machine code array for formatting
+    let machineCodeArray = [opcode];
     
     // Build the operand string
     let operand = '';
@@ -631,22 +709,37 @@ function getInstructionInfo(opcode, memory, pc) {
         if (info.length === 2) {
             // Instructions with one byte operand
             const value = memory[pc + 1];
-            operand = value.toString(16).toUpperCase().padStart(2, '0');
-            machineCode += ' ' + operand;
+            if (value !== undefined) {
+                operand = value.toString(16).toUpperCase().padStart(2, '0');
+                machineCodeArray.push(value);
+            }
         } else if (info.length === 3) {
-            // Instructions with two byte operand
-            const low = memory[pc + 1];
-            const high = memory[pc + 2];
-            operand = ((high << 8) | low).toString(16).toUpperCase().padStart(4, '0');
-            machineCode += ' ' + low.toString(16).toUpperCase().padStart(2, '0') + 
-                          ' ' + high.toString(16).toUpperCase().padStart(2, '0');
+            // Instructions with two byte operand (stored in little-endian format)
+            const lowByte = memory[pc + 1];
+            const highByte = memory[pc + 2];
+            
+            if (lowByte !== undefined && highByte !== undefined) {
+                // Calculate the address (little-endian: low byte first, then high byte)
+                const address = (highByte << 8) | lowByte;
+                
+                // Format the operand as a 4-digit hex address
+                operand = address.toString(16).toUpperCase().padStart(4, '0');
+                
+                // Add the bytes to the machine code array
+                machineCodeArray.push(lowByte, highByte);
+            }
         }
     }
+    
+    // Convert the machine code array to a formatted string
+    const machineCodeStr = machineCodeArray.map(byte => 
+        byte.toString(16).toUpperCase().padStart(2, '0')
+    ).join(' ');
     
     return {
         mnemonic: info.mnemonic,
         operand: operand,
-        machineCode: machineCode
+        machineCode: machineCodeStr
     };
 }
 
@@ -679,6 +772,17 @@ function loadSampleProgram() {
 // Helper function to write to memory at a specific address
 async function writeToMemoryAt(address, value) {
     try {
+        console.log(`Writing value 0x${value.toString(16).toUpperCase()} to address 0x${address.toString(16).toUpperCase()}`);
+        
+        // Validate inputs
+        if (isNaN(address) || address < 0 || address > 0xFFFF) {
+            throw new Error(`Invalid memory address: ${address}`);
+        }
+        
+        if (isNaN(value) || value < 0 || value > 0xFF) {
+            throw new Error(`Invalid memory value: ${value}`);
+        }
+        
         const response = await fetch('/api/write', {
             method: 'POST',
             headers: {
@@ -695,7 +799,9 @@ async function writeToMemoryAt(address, value) {
             throw new Error(errorData.error || 'Failed to write to memory');
         }
         
-        return await response.json();
+        const result = await response.json();
+        console.log(`Successfully wrote to memory. New state:`, result);
+        return result;
     } catch (error) {
         console.error('Error writing to memory:', error);
         throw error;
@@ -760,7 +866,14 @@ function addInstructionToHistory(address, mnemonic, operand, machineCode) {
     const instructionHistory = document.getElementById('instruction-history');
     if (!instructionHistory) return;
     
+    const tbody = instructionHistory.querySelector('tbody');
+    if (!tbody) return;
+    
     const row = document.createElement('tr');
+    
+    // Apply theme styles to ensure row color matches dark theme
+    row.style.color = 'var(--text-color)';
+    row.style.backgroundColor = 'var(--table-row-bg)';
     
     // Address cell
     const addressCell = document.createElement('td');
@@ -782,7 +895,16 @@ function addInstructionToHistory(address, mnemonic, operand, machineCode) {
     machineCodeCell.textContent = machineCode || '-';
     row.appendChild(machineCodeCell);
     
-    instructionHistory.appendChild(row);
+    // Add row to the table
+    tbody.appendChild(row);
+    
+    // Alternate row colors based on even/odd position
+    const rowCount = tbody.children.length;
+    if (rowCount % 2 === 0) {
+        row.style.backgroundColor = 'var(--card-bg)';
+    } else {
+        row.style.backgroundColor = 'var(--panel-bg)';
+    }
     
     // Scroll to the bottom of the instruction history
     instructionHistory.scrollTop = instructionHistory.scrollHeight;
@@ -819,21 +941,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const loadProgramBtn = document.getElementById('load-program');
     if (loadProgramBtn) {
         loadProgramBtn.addEventListener('click', loadProgram);
+    } else {
+        console.warn("Load program button not found");
     }
     
     const stepInstructionBtn = document.getElementById('step-instruction');
     if (stepInstructionBtn) {
         stepInstructionBtn.addEventListener('click', executeInstruction);
+    } else {
+        console.warn("Step instruction button not found");
     }
     
     const runProgramBtn = document.getElementById('run-program');
     if (runProgramBtn) {
         runProgramBtn.addEventListener('click', runProgram);
+    } else {
+        console.warn("Run program button not found");
     }
     
     const resetCalculatorBtn = document.getElementById('reset-calculator');
     if (resetCalculatorBtn) {
         resetCalculatorBtn.addEventListener('click', reset);
+    } else {
+        console.warn("Reset calculator button not found");
+    }
+    
+    // Clear history button
+    const clearHistoryBtn = document.getElementById('clear-history');
+    if (clearHistoryBtn) {
+        clearHistoryBtn.addEventListener('click', clearInstructionHistory);
+    } else {
+        console.warn("Clear history button not found");
     }
     
     // Initialize the simulator
@@ -855,69 +993,103 @@ document.addEventListener('DOMContentLoaded', function() {
     if (machineCodeInput) {
         machineCodeInput.addEventListener('focus', () => setActiveInput('machine-code'));
     }
+
+    // Add tooltips to buttons
+    const buttons = {
+        'load-program': 'Ctrl + L',
+        'step-instruction': 'Ctrl + S',
+        'run-program': 'Ctrl + P',
+        'reset-calculator': 'Ctrl + R',
+        'clear-history': 'Ctrl + C',
+    };
+
+    for (const [id, shortcut] of Object.entries(buttons)) {
+        const button = document.getElementById(id);
+        if (button) {
+            button.setAttribute('title', `Keyboard shortcut: ${shortcut}`);
+        }
+    }
 });
 
 // Handle keyboard navigation
 function handleKeyNavigation(event) {
-    // Check for Enter key (for next address)
+    // Handle Enter and Shift+Enter for navigation
     if (event.key === 'Enter') {
-        // If Shift+Enter, go to previous address
+        event.preventDefault();
         if (event.shiftKey) {
-            event.preventDefault(); // Prevent default behavior
             prevAddress();
         } else {
-            // Regular Enter key for next address
-            event.preventDefault(); // Prevent default behavior
             nextAddress();
         }
+        return;
+    }
+
+    // Only handle Ctrl combinations for other shortcuts
+    if (!event.ctrlKey) return;
+
+    // Prevent default behavior for our shortcuts
+    if (['r', 's', 'l', 'c', 'h', 'g', 'p'].includes(event.key.toLowerCase())) {
+        event.preventDefault();
+    }
+
+    // Reset button (Ctrl + R)
+    if (event.key.toLowerCase() === 'r') {
+        reset();
+    }
+    // Step button (Ctrl + S)
+    else if (event.key.toLowerCase() === 's') {
+        executeInstruction();
+    }
+    // Load Program button (Ctrl + L)
+    else if (event.key.toLowerCase() === 'l') {
+        loadProgram();
+    }
+    // Clear History button (Ctrl + C)
+    else if (event.key.toLowerCase() === 'c') {
+        clearInstructionHistory();
+    }
+    // Help button (Ctrl + H)
+    else if (event.key.toLowerCase() === 'h') {
+        window.location.href = '/help';
+    }
+    // Go to Address button (Ctrl + G)
+    else if (event.key.toLowerCase() === 'g') {
+        goToAddress();
+    }
+    // Run Program button (Ctrl + P)
+    else if (event.key.toLowerCase() === 'p') {
+        runProgram();
     }
 }
 
 // Run program from current address until HLT is encountered
 async function runProgram() {
     try {
-        // Get current address
+        console.log("Running program...");
+        
+        // First, make sure any changes in the current memory location are saved
         const addressInput = document.getElementById('memory-address');
+        const codeInput = document.getElementById('machine-code');
         const startAddress = parseInt(addressInput.value, 16);
         
-        // First, get the memory state to find all instructions until HLT
-        const memoryResponse = await fetch('/get_memory');
-        if (!memoryResponse.ok) {
-            throw new Error(`HTTP error! Status: ${memoryResponse.status}`);
-        }
-        const memoryData = await memoryResponse.json();
-        const memory = memoryData.memory;
-        
-        // Collect all instructions until HLT is found
-        const instructions = [];
-        let currentAddr = startAddress;
-        
-        while (currentAddr < 0xFFFF) {
-            const opcode = memory[currentAddr];
-            instructions.push({
-                address: currentAddr,
-                opcode: opcode
-            });
-            
-            // If we found HLT, stop collecting
-            if (opcode === 0x76) {
-                break;
+        // Save current machine code if needed
+        const currentCode = codeInput.value.trim();
+        if (currentCode) {
+            const codeValue = parseInt(currentCode, 16);
+            if (!isNaN(codeValue) && codeValue >= 0 && codeValue <= 0xFF) {
+                await writeToMemoryAt(startAddress, codeValue);
             }
-            
-            // Move to next address
-            currentAddr++;
         }
         
-        // Send the instructions to Python for execution
-        const response = await fetch('/execute_instructions', {
+        console.log(`Starting program execution at address: 0x${startAddress.toString(16).toUpperCase()}`);
+        
+        // Call the backend endpoint to run the program
+        const response = await fetch('/run_from_address', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 
-                instructions: instructions,
-                start_address: startAddress
-            })
+            body: JSON.stringify({ address: startAddress })
         });
         
         if (!response.ok) {
@@ -926,15 +1098,65 @@ async function runProgram() {
         
         const data = await response.json();
         
-        if (data.success) {
-            updateState(data.state);
-            alert('Program execution completed!');
-        } else {
-            alert('Error running program: ' + data.error);
+        if (!data.success) {
+            throw new Error(data.error || "Unknown error during program execution");
         }
+        
+        console.log("Program execution completed, updating UI with results");
+        
+        // Update the UI with the final state
+        updateUI(data.state);
+        
+        // Clear existing history
+        clearInstructionHistory();
+        
+        // Process each instruction in the execution trace from the server
+        if (data.instruction_history && Array.isArray(data.instruction_history)) {
+            console.log(`Adding ${data.instruction_history.length} instructions to history`);
+            
+            data.instruction_history.forEach(instruction => {
+                updateInstructionHistoryTable(
+                    instruction.address,
+                    instruction.mnemonic,
+                    instruction.operand,
+                    instruction.machine_code
+                );
+            });
+        } else {
+            console.warn("No instruction history received from server");
+        }
+        
+        console.log("Program execution finished successfully");
+        alert('Program execution completed!');
     } catch (error) {
         console.error('Error running program:', error);
         alert('Error running program: ' + error.message);
+    }
+}
+
+// Get the length of an instruction in bytes
+function getInstructionLength(opcode) {
+    // Instructions with 1 byte operand (2 bytes total)
+    const oneByteOperandInstructions = [
+        0x06, 0x0E, 0x16, 0x1E, 0x26, 0x2E, 0x36, 0x3E, // MVI instructions
+        0xC6, 0xCE, 0xD6, 0xDE, 0xE6, 0xEE, 0xF6, 0xFE, // Immediate arithmetic/logical
+        0xDB, 0xD3 // IN/OUT instructions
+    ];
+    
+    // Instructions with 2 byte operand (3 bytes total)
+    const twoByteOperandInstructions = [
+        0x01, 0x11, 0x21, 0x31, // LXI instructions
+        0x22, 0x2A, 0x32, 0x3A, // Direct addressing
+        0xC3, 0xC2, 0xCA, 0xD2, 0xDA, 0xE2, 0xEA, 0xF2, 0xFA, // JMP instructions
+        0xCD, 0xC4, 0xCC, 0xD4, 0xDC, 0xE4, 0xEC, 0xF4, 0xFC // CALL instructions
+    ];
+    
+    if (oneByteOperandInstructions.includes(opcode)) {
+        return 2;
+    } else if (twoByteOperandInstructions.includes(opcode)) {
+        return 3;
+    } else {
+        return 1; // Default for most instructions
     }
 }
 
@@ -967,12 +1189,12 @@ function updateMemoryDisplay() {
             // Calculate the starting address for display (aligned to 16-byte boundary)
             const startAddress = Math.floor(currentAddress / 16) * 16;
             
-            // Create rows (4 rows of 16 bytes each)
+            // Display 4 rows of 16 bytes
             for (let row = 0; row < 4; row++) {
                 const rowAddress = startAddress + (row * 16);
                 if (rowAddress > 0xFFFF) break;
                 
-                // Create row container
+                // Create row container with address label
                 const rowContainer = document.createElement('div');
                 rowContainer.className = 'memory-row';
                 
@@ -982,7 +1204,7 @@ function updateMemoryDisplay() {
                 addressLabel.textContent = rowAddress.toString(16).padStart(4, '0').toUpperCase();
                 rowContainer.appendChild(addressLabel);
                 
-                // Create cells container
+                // Create container for cells
                 const cellsContainer = document.createElement('div');
                 cellsContainer.className = 'memory-cells-container';
                 
@@ -1029,10 +1251,6 @@ function updateMemoryDisplay() {
         })
         .catch(error => {
             console.error('Error fetching memory:', error);
-            const memoryDisplay = document.getElementById('memory-display');
-            if (memoryDisplay) {
-                memoryDisplay.innerHTML = '<div class="error-message">Error loading memory data. Please try again.</div>';
-            }
         });
 }
 
@@ -1063,7 +1281,7 @@ async function runFromCurrentAddress() {
         }
         
         // Update the UI with the final state
-        updateState(data.state);
+        updateUI(data.state);
         
         // Add instructions to history
         const instructionHistory = document.getElementById('instruction-history');
@@ -1089,15 +1307,171 @@ async function runFromCurrentAddress() {
     }
 }
 
-// Add event listener for the execute button
-document.addEventListener('DOMContentLoaded', function() {
-    // ... existing code ...
-    
-    // Add event listener for the execute button
-    const executeButton = document.getElementById('execute-instruction');
-    if (executeButton) {
-        executeButton.addEventListener('click', runFromCurrentAddress);
+// Clear the instruction history
+function clearInstructionHistory() {
+    const historyTable = document.getElementById('instruction-history');
+    if (historyTable) {
+        const tbody = historyTable.querySelector('tbody');
+        if (tbody) {
+            tbody.innerHTML = '';
+        } else {
+            // Create tbody if it doesn't exist
+            const newTbody = document.createElement('tbody');
+            historyTable.appendChild(newTbody);
+        }
+    }
+}
+
+// Format a number as a hexadecimal string with specified number of digits
+function formatHex(number, digits) {
+    return number.toString(16).toUpperCase().padStart(digits, '0');
+}
+
+// Format machine code as a hexadecimal string
+function formatMachineCode(machineCode) {
+    if (!machineCode) {
+        return '';
     }
     
-    // ... existing code ...
-}); 
+    // If machineCode is already a string, return it as is
+    if (typeof machineCode === 'string') {
+        return machineCode;
+    }
+    
+    // If machineCode is an array, format each byte
+    if (Array.isArray(machineCode)) {
+        return machineCode.map(byte => formatHex(byte, 2)).join(' ');
+    }
+    
+    // If machineCode is a number, format it as a hex string
+    if (typeof machineCode === 'number') {
+        return formatHex(machineCode, 2);
+    }
+    
+    return '';
+}
+
+// Update the instruction history table with a new entry
+function updateInstructionHistoryTable(address, mnemonic, operand, machineCode) {
+    const historyTable = document.getElementById('instruction-history');
+    if (!historyTable) {
+        console.error("Instruction history table not found");
+        return;
+    }
+    
+    let tbody = historyTable.querySelector('tbody');
+    
+    // Create tbody if it doesn't exist
+    if (!tbody) {
+        console.warn("Instruction history tbody not found, creating a new one");
+        tbody = document.createElement('tbody');
+        historyTable.appendChild(tbody);
+    }
+    
+    // Create a new row
+    const row = document.createElement('tr');
+    
+    // Add cells with the last executed instruction
+    const addressCell = document.createElement('td');
+    addressCell.textContent = formatHex(address, 4);
+    row.appendChild(addressCell);
+
+    const mnemonicCell = document.createElement('td');
+    mnemonicCell.textContent = mnemonic || 'Unknown';
+    row.appendChild(mnemonicCell);
+
+    const operandCell = document.createElement('td');
+    operandCell.textContent = operand || '';
+    row.appendChild(operandCell);
+
+    const machineCodeCell = document.createElement('td');
+    machineCodeCell.textContent = formatMachineCode(machineCode);
+    row.appendChild(machineCodeCell);
+
+    // Add the new row at the bottom of the table
+    tbody.appendChild(row);
+    
+    // Keep only the last 100 instructions
+    while (tbody.rows.length > 100) {
+        tbody.removeChild(tbody.firstChild);
+    }
+    
+    // Update classes for all rows to ensure proper alternating colors
+    for (let i = 0; i < tbody.rows.length; i++) {
+        // Remove any existing row classes
+        tbody.rows[i].classList.remove('instruction-row-odd', 'instruction-row-even');
+        
+        // Add appropriate class based on index
+        if (i % 2 === 0) {
+            tbody.rows[i].classList.add('instruction-row-even');
+        } else {
+            tbody.rows[i].classList.add('instruction-row-odd');
+        }
+    }
+    
+    // Scroll to make the latest instruction visible
+    historyTable.scrollTop = historyTable.scrollHeight;
+}
+
+// Load the swap program directly into memory
+async function loadSwapProgram() {
+    try {
+        // Swap program:
+        // 2000: LDA 2500    (3A 00 25) - Load value from 2500 into A
+        // 2003: MOV B,A     (47)       - Copy A to B (save first value)
+        // 2004: LDA 2501    (3A 01 25) - Load value from 2501 into A
+        // 2007: STA 2500    (32 00 25) - Store A into 2500 (second value to first position)
+        // 200A: MOV A,B     (78)       - Copy B back to A (retrieve first value)
+        // 200B: STA 2501    (32 01 25) - Store A into 2501 (first value to second position)
+        // 200E: HLT         (76)       - Halt execution
+        
+        const program = [
+            { address: 0x2000, opcode: 0x3A }, // LDA 2500
+            { address: 0x2001, opcode: 0x00 },
+            { address: 0x2002, opcode: 0x25 },
+            { address: 0x2003, opcode: 0x47 }, // MOV B,A
+            { address: 0x2004, opcode: 0x3A }, // LDA 2501
+            { address: 0x2005, opcode: 0x01 },
+            { address: 0x2006, opcode: 0x25 },
+            { address: 0x2007, opcode: 0x32 }, // STA 2500
+            { address: 0x2008, opcode: 0x00 },
+            { address: 0x2009, opcode: 0x25 },
+            { address: 0x200A, opcode: 0x78 }, // MOV A,B
+            { address: 0x200B, opcode: 0x32 }, // STA 2501
+            { address: 0x200C, opcode: 0x01 },
+            { address: 0x200D, opcode: 0x25 },
+            { address: 0x200E, opcode: 0x76 }  // HLT
+        ];
+        
+        // Initialize sample data at memory addresses
+        const data = [
+            { address: 0x2500, value: 0x55 }, // First value to swap
+            { address: 0x2501, value: 0xAA }  // Second value to swap
+        ];
+        
+        // Write program bytes to memory
+        for (const instruction of program) {
+            await writeToMemoryAt(instruction.address, instruction.opcode);
+        }
+        
+        // Write sample data
+        for (const item of data) {
+            await writeToMemoryAt(item.address, item.value);
+        }
+        
+        // Set program counter to start address
+        const addressInput = document.getElementById('memory-address');
+        addressInput.value = '2000';
+        
+        // Clear instruction history
+        clearInstructionHistory();
+        
+        // Update memory display
+        await updateMemoryDisplay();
+        
+        alert('Swap program loaded successfully!');
+    } catch (error) {
+        console.error('Error loading swap program:', error);
+        alert('Error loading program: ' + error.message);
+    }
+} 

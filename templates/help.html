@@ -18,8 +18,14 @@
             </div>
             <p class="subtitle">Help Documentation</p>
             <div class="header-links">
-                <a href="/" class="btn btn-outline-light">
+                <a href="/machine-code" class="btn btn-outline-primary me-2">
+                    <i class="bi bi-code-square"></i> Machine Code
+                </a>
+                <a href="/" class="btn btn-outline-info">
                     <i class="bi bi-arrow-left"></i> Back to Simulator
+                </a>
+                <a href="/donate" class="btn btn-outline-light me-2" style="color: var(--danger-color); border-color: var(--danger-color);">
+                    <i class="bi bi-heart-fill"></i> Donate
                 </a>
             </div>
         </header>
@@ -34,9 +40,37 @@
                     </div>
                 </div>
 
-               <div class="help-section">
+                <div class="help-section">
                     <h2><i class="bi bi-keyboard"></i> Shortcut Keys</h2>
                     <div class="shortcut-keys">
+                        <div class="shortcut-key">
+                            <span class="key">Ctrl + R</span>
+                            <span class="description">Reset the simulator</span>
+                        </div>
+                        <div class="shortcut-key">
+                            <span class="key">Ctrl + G</span>
+                            <span class="description">Go to specified address</span>
+                        </div>
+                        <div class="shortcut-key">
+                            <span class="key">Ctrl + P</span>
+                            <span class="description">Run program</span>
+                        </div>
+                        <div class="shortcut-key">
+                            <span class="key">Ctrl + S</span>
+                            <span class="description">Step through instruction</span>
+                        </div>
+                        <div class="shortcut-key">
+                            <span class="key">Ctrl + L</span>
+                            <span class="description">Load program</span>
+                        </div>
+                        <div class="shortcut-key">
+                            <span class="key">Ctrl + C</span>
+                            <span class="description">Clear instruction history</span>
+                        </div>
+                        <div class="shortcut-key">
+                            <span class="key">Ctrl + H</span>
+                            <span class="description">Open help page</span>
+                        </div>
                         <div class="shortcut-key">
                             <span class="key">Enter</span>
                             <span class="description">Go to next address</span>
@@ -50,6 +84,10 @@
 
                 <div class="help-section">
                     <h2><i class="bi bi-book"></i> 8085 Instruction Set</h2>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> For a complete reference of all instructions with their machine codes, visit the <a href="/machine-code" class="alert-link">Machine Code Reference</a> page.
+                    </div>
                     
                     <div class="instruction-group">
                         <h3>1. Data Transfer Instructions</h3>

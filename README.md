@@ -8,7 +8,8 @@ A comprehensive web-based simulator for the Intel 8085 microprocessor, designed 
 
 ## 🌟 Features
 
-- **Complete 8085 Instruction Set**: Support for all 8085 microprocessor instructions
+- **Complete 8085 Instruction Set**: Support for all 8085 microprocessor instructions including undocumented ones (all 256 opcodes)
+- **Comprehensive Machine Code Reference**: Searchable and filterable reference table with all 256 opcodes, mnemonics, and descriptions
 - **Real-time Register & Flag Monitoring**: Watch register values and flags change as instructions execute
 - **Memory Editor**: Write and modify machine code directly in memory
 - **Step-by-Step Execution**: Execute instructions one at a time to understand program flow
@@ -79,8 +80,15 @@ Click the "Reset" button to clear all registers, flags, and memory, returning th
 
 | Shortcut | Action |
 |----------|--------|
-| ENTER | Next memory adress |
-| Shift + ENTER | Prevoious address |
+| Ctrl + R | Reset the simulator |
+| Ctrl + G | Go to specified address |
+| Ctrl + P | Run program |
+| Ctrl + S | Step through instruction |
+| Ctrl + L | Load program |
+| Ctrl + C | Clear instruction history |
+| Ctrl + H | Open help page |
+| Enter | Next memory address |
+| Shift + Enter | Previous address |
 
 ## 📚 8085 Instruction Set
 
@@ -92,7 +100,7 @@ The simulator supports the complete 8085 instruction set, including:
 - **Branch Group**: JMP, JNZ, JZ, CALL, RET, etc.
 - **Stack, I/O, and Machine Control Group**: PUSH, POP, IN, OUT, EI, DI, etc.
 
-For a complete list of instructions and their opcodes, visit the [Help Page](http://localhost:5000/help).
+For a complete reference of all 256 instructions (including undocumented ones) with their opcodes, machine codes, and descriptions, visit the [Machine Code Reference](http://localhost:5000/machine-code) page.
 
 ## 🧩 Example Programs
 
@@ -123,6 +131,16 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## ❤️ Support This Project
+
+If you find this simulator useful for your studies or work, consider supporting the project with a donation:
+
+- **Bitcoin**: `14GSZ1293s65JjytCjZMz3AFNSUa4ZVN2V`
+- **Monero (XMR)**: `42GyVekn3tufQjYQS9iN79g9MhzfLDgiu3HVAifDfNuW8MA2bi2UPagXo5ZPzA8rupERybjWsMv5HP7azinFbBxcFf9FW86`
+- **UPI** (for users in India): `furjack@ybl`
+
+Your support helps keep this project maintained and improved. Visit the [Donate Page](http://localhost:5000/donate) for more information.
 
 ## 📝 License
 

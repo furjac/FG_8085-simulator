@@ -1,0 +1,403 @@
+/* Machine Code Reference Page Styling */
+:root {
+    /* Main color scheme matching main site */
+    --primary-color: #3b82f6;
+    --secondary-color: #64748b;
+    --success-color: #22c55e;
+    --danger-color: #ef4444;
+    --info-color: #06b6d4;
+    --warning-color: #f59e0b;
+    --dark-bg: #0f172a;
+    --panel-bg: #1e293b;
+    --card-bg: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --border-color: #475569;
+    --hover-color: #2d3748;
+    --active-color: #3b82f6;
+    --background-color: #0f172a;
+    --panel-background: #1e293b;
+    --text-color: #f8fafc;
+    --highlight-color: #3b82f6;
+    
+    /* Code formatting */
+    --code-bg: #1e293b;
+    --code-text: #f97316;
+}
+
+/* Basic reset and layout */
+body {
+    font-family: 'Share Tech Mono', monospace;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header styling */
+.app-header {
+    background-color: var(--panel-bg);
+    color: var(--text-primary);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo-container i {
+    font-size: 2rem;
+    color: var(--primary-color);
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.logo-container h1 {
+    font-size: 1.75rem;
+    margin: 0;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.subtitle {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+.header-links {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.header-links .btn {
+    transition: all 0.3s ease;
+}
+
+.header-links .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Main content area */
+.app-content {
+    flex: 1;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Instruction panel styling */
+.instruction-panel {
+    background-color: var(--panel-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.panel-header {
+    padding: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.panel-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-color);
+}
+
+.search-filter-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Search box styling */
+.search-box {
+    display: flex;
+    background-color: var(--dark-bg);
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.search-box input {
+    padding: 0.6rem 1rem;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    width: 200px;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.search-box input::placeholder {
+    color: var(--text-secondary);
+}
+
+.search-box button {
+    background-color: var(--primary-color);
+    border: none;
+    color: var(--text-primary);
+    padding: 0 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.search-box button:hover {
+    background-color: var(--active-color);
+}
+
+/* Filter dropdown styling */
+.filter-dropdown {
+    position: relative;
+}
+
+.filter-dropdown button {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.filter-dropdown button:hover {
+    background-color: var(--hover-color);
+}
+
+.filter-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--panel-bg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    width: 180px;
+    display: none;
+    z-index: 10;
+    margin-top: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.filter-menu.active {
+    display: block;
+}
+
+.filter-option {
+    display: block;
+    padding: 0.6rem 1rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.filter-option:hover {
+    background-color: var(--hover-color);
+}
+
+.filter-option.active {
+    background-color: var(--primary-color);
+    color: var(--text-primary);
+}
+
+.divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 0.3rem 0;
+}
+
+/* Table styling */
+.instruction-table-container {
+    overflow-x: auto;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+#instruction-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+#instruction-table th {
+    background-color: var(--card-bg);
+    color: var(--primary-color);
+    padding: 1rem;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+}
+
+#instruction-table td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#instruction-table tbody tr {
+    background-color: var(--panel-bg);
+    transition: background-color 0.2s;
+}
+
+#instruction-table tbody tr:hover {
+    background-color: var(--hover-color);
+}
+
+/* Ensure all rows have the same background color */
+#instruction-table tbody tr:nth-child(odd),
+#instruction-table tbody tr:nth-child(even) {
+    background-color: var(--panel-bg);
+}
+
+/* Code styling */
+.machine-code {
+    font-family: 'Share Tech Mono', monospace;
+    background-color: var(--code-bg);
+    color: var(--code-text);
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    display: inline-block;
+    border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+/* Panel footer */
+.panel-footer {
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+}
+
+.page-info {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.page-btn {
+    background-color: var(--primary-color);
+    color: var(--text-primary);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.page-btn:hover {
+    background-color: var(--active-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.page-indicator {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Footer styling */
+.app-footer {
+    background-color: var(--panel-bg);
+    color: var(--text-secondary);
+    padding: 1.5rem;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+}
+
+.app-footer p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--panel-bg);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--card-bg);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--hover-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .search-filter-controls {
+        width: 100%;
+    }
+    
+    .panel-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .pagination-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+} 

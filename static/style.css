@@ -3,20 +3,23 @@
 
 /* Root Variables */
 :root {
-    --primary-color: #4a90e2;
-    --secondary-color: #2c3e50;
-    --background-color: #1a1a1a;
-    --panel-bg: #2d2d2d;
-    --card-bg: #363636;
-    --text-color: #ffffff;
-    --border-color: #404040;
-    --hover-color: #454545;
-    --active-color: #357abd;
-    --error-color: #e74c3c;
-    --success-color: #2ecc71;
+    --primary-color: #3b82f6;
+    --secondary-color: #64748b;
+    --success-color: #22c55e;
+    --danger-color: #ef4444;
+    --info-color: #06b6d4;
+    --warning-color: #f59e0b;
+    --dark-bg: #0f172a;
+    --panel-bg: #1e293b;
+    --card-bg: #334155;
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
+    --border-color: #475569;
+    --hover-color: #2d3748;
+    --active-color: #3b82f6;
+    --background-color: #0f172a;
     --panel-background: #1e293b;
+    --text-color: #f8fafc;
     --highlight-color: #3b82f6;
     --current-address-color: #fbbf24;
     --program-counter-color: #22c55e;
@@ -24,6 +27,8 @@
     --memory-cell-border: #475569;
     --memory-cell-hover: #334155;
     --memory-cell-active: #3b82f6;
+    --table-row-bg: #1e293b;
+    --table-row-hover: #2d3748;
 }
 
 /* Base Styles */
@@ -165,33 +170,6 @@ body {
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
 /* Modern Dark Theme for FG-8085 Simulator */
-:root {
-    --primary-color: #3b82f6;
-    --secondary-color: #64748b;
-    --success-color: #22c55e;
-    --danger-color: #ef4444;
-    --info-color: #06b6d4;
-    --warning-color: #f59e0b;
-    --dark-bg: #0f172a;
-    --panel-bg: #1e293b;
-    --card-bg: #334155;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --border-color: #475569;
-    --hover-color: #2d3748;
-    --active-color: #3b82f6;
-    --background-color: #0f172a;
-    --panel-background: #1e293b;
-    --text-color: #f8fafc;
-    --highlight-color: #3b82f6;
-    --current-address-color: #fbbf24;
-    --program-counter-color: #22c55e;
-    --memory-cell-bg: #1e293b;
-    --memory-cell-border: #475569;
-    --memory-cell-hover: #334155;
-    --memory-cell-active: #3b82f6;
-}
-
 * {
     margin: 0;
     padding: 0;
@@ -399,11 +377,24 @@ body {
 }
 
 .memory-cell.program-counter {
-    background-color: var(--program-counter-color);
-    color: #000;
-    text-shadow: none;
-    border-color: var(--primary-color);
-    font-weight: bold;
+    background-color: #22c55e !important;
+    color: #000 !important;
+    text-shadow: none !important;
+    border-color: var(--primary-color) !important;
+    font-weight: bold !important;
+    animation: pulse 1s infinite !important;
+}
+
+@keyframes pulse {
+    0% {
+        background-color: #22c55e !important;
+    }
+    50% {
+        background-color: #32CD32 !important;
+    }
+    100% {
+        background-color: #22c55e !important;
+    }
 }
 
 /* Controls Panel */
@@ -462,48 +453,46 @@ body {
     font-weight: 500;
 }
 
-.btn-primary {
-    background-color: var(--primary-color);
-    color: white;
+.control-buttons button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.btn-primary:hover {
-    background-color: #2563eb;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.btn-primary {
+    background-color: #0d6efd;
+    color: white;
 }
 
 .btn-success {
-    background-color: var(--success-color);
+    background-color: #198754;
     color: white;
-}
-
-.btn-success:hover {
-    background-color: #16a34a;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.btn-danger {
-    background-color: var(--danger-color);
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #dc2626;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .btn-info {
-    background-color: var(--info-color);
+    background-color: #0dcaf0;
     color: white;
 }
 
-.btn-info:hover {
-    background-color: #0891b2;
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.control-buttons button:hover {
     transform: translateY(-2px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.control-buttons button:active {
+    transform: translateY(0);
+    box-shadow: none;
 }
 
 /* Editor Interface */
@@ -794,4 +783,268 @@ body {
     color: var(--primary-color);
     background-color: transparent;
     margin-right: 8px;
+}
+
+.instruction-history-section {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: var(--panel-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.section-header i {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.section-header h3 {
+    color: var(--text-color);
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#instruction-history {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+#instruction-history th,
+#instruction-history td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#instruction-history th {
+    background-color: var(--card-bg);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+#instruction-history tbody tr {
+    background-color: var(--table-row-bg) !important;
+    color: var(--text-color) !important;
+    transition: background-color 0.2s ease;
+}
+
+#instruction-history tbody tr:hover {
+    background-color: var(--table-row-hover) !important;
+}
+
+#instruction-history tbody tr td {
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.75rem;
+}
+
+#instruction-history tbody tr:last-child td {
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .instruction-history-section {
+        padding: 10px;
+    }
+    
+    #instruction-history th,
+    #instruction-history td {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+}
+
+.keyboard-shortcut {
+    display: none;
+}
+
+button {
+    padding-right: 16px;
+}
+
+/* Add styles for the new buttons */
+#go-to-address, #run-program {
+    margin-top: 10px;
+}
+
+.table {
+    color: var(--text-color) !important;
+    background-color: transparent !important;
+}
+
+.table-striped>tbody>tr:nth-of-type(odd) {
+    background-color: var(--panel-bg) !important;
+}
+
+.table-striped>tbody>tr:nth-of-type(even) {
+    background-color: var(--card-bg) !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--hover-color) !important;
+}
+
+/* Override any Bootstrap table styles with !important */
+.table-striped>tbody>tr {
+    color: var(--text-color) !important;
+}
+
+.table th, .table td {
+    border-color: var(--border-color) !important;
+}
+
+/* Ensure instruction history table rows match theme */
+#instruction-history {
+    color: var(--text-color) !important;
+}
+
+#instruction-history tbody tr {
+    color: var(--text-color) !important;
+    background-color: var(--table-row-bg) !important;
+}
+
+#instruction-history tbody tr:nth-of-type(odd) {
+    background-color: var(--panel-bg) !important;
+}
+
+#instruction-history tbody tr:nth-of-type(even) {
+    background-color: var(--card-bg) !important;
+}
+
+#instruction-history thead tr {
+    background-color: var(--panel-bg) !important;
+    color: var(--text-color) !important;
+}
+
+/* Add specific classes for instruction history rows */
+#instruction-history .instruction-row-odd {
+    background-color: var(--panel-bg) !important;
+    color: var(--text-color) !important;
+}
+
+#instruction-history .instruction-row-even {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+#instruction-history .instruction-row-odd:hover,
+#instruction-history .instruction-row-even:hover {
+    background-color: var(--hover-color) !important;
+}
+
+/* Critical Bootstrap overrides for dark theme tables */
+table.table {
+    background-color: transparent !important;
+    color: var(--text-color) !important;
+}
+
+table.table tr,
+table.table thead tr,
+table.table tbody tr {
+    background-color: var(--table-row-bg) !important;
+    color: var(--text-color) !important;
+}
+
+/* Direct overrides for Bootstrap striping */
+.table-striped > tbody > tr:nth-of-type(odd),
+.table-striped tbody tr:nth-of-type(odd) {
+    --bs-table-accent-bg: var(--panel-bg) !important;
+    color: var(--text-color) !important;
+    background-color: var(--panel-bg) !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(even),
+.table-striped tbody tr:nth-of-type(even) {
+    --bs-table-accent-bg: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    background-color: var(--card-bg) !important;
+}
+
+/* Specific rule for instruction history table */
+#instruction-history tbody tr {
+    background-color: var(--table-row-bg) !important;
+    color: var(--text-color) !important;
+}
+
+/* Specific rule targeting each tr directly with element attribute selector */
+tr[style] {
+    color: var(--text-color) !important;
+}
+
+/* Instruction History Table Styles */
+#instruction-history {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+/* Clear Bootstrap's striping for our tables */
+.table-striped tbody tr:nth-of-type(odd),
+.table-striped tbody tr:nth-of-type(even) {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+/* Target our custom row classes directly */
+.instruction-row {
+    color: var(--text-color) !important;
+    background-color: var(--panel-bg) !important;
+}
+
+.instruction-row-even {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+.instruction-row-odd {
+    background-color: var(--panel-bg) !important;
+    color: var(--text-color) !important;
+}
+
+/* Target data attributes for even/odd rows */
+tr[data-row-type="even"] {
+    background-color: var(--card-bg) !important;
+}
+
+tr[data-row-type="odd"] {
+    background-color: var(--panel-bg) !important;
+}
+
+/* Override any inline styles from Bootstrap */
+#instruction-history tbody tr td {
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Ensure table header is styled correctly */
+#instruction-history thead th {
+    background-color: var(--header-bg) !important;
+    color: var(--header-text) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Fix for all instruction history table cells */
+#instruction-history tr td {
+    background-color: inherit !important;
+}
+
+/* Make sure hover effects don't change the text color */
+.table-hover tbody tr:hover {
+    color: var(--text-color) !important;
 } 
