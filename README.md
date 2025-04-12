@@ -100,7 +100,7 @@ The simulator supports the complete 8085 instruction set, including:
 - **Branch Group**: JMP, JNZ, JZ, CALL, RET, etc.
 - **Stack, I/O, and Machine Control Group**: PUSH, POP, IN, OUT, EI, DI, etc.
 
-For a complete reference of all 256 instructions (including undocumented ones) with their opcodes, machine codes, and descriptions, visit the [Machine Code Reference](http://localhost:5000/machine-code) page.
+For a complete reference of all 256 instructions (including undocumented ones) with their opcodes, machine codes, and descriptions, visit the [Machine Code Reference](http://fg-8085.onrender.com/machine-code) page.
 
 ## 🧩 Example Programs
 
@@ -140,7 +140,7 @@ If you find this simulator useful for your studies or work, consider supporting 
 - **Monero (XMR)**: `42GyVekn3tufQjYQS9iN79g9MhzfLDgiu3HVAifDfNuW8MA2bi2UPagXo5ZPzA8rupERybjWsMv5HP7azinFbBxcFf9FW86`
 - **UPI** (for users in India): `furjack@ybl`
 
-Your support helps keep this project maintained and improved. Visit the [Donate Page](http://localhost:5000/donate) for more information.
+Your support helps keep this project maintained and improved. Visit the [Donate Page](http://fg-8085.onrender.com/donate) for more information.
 
 ## 📝 License
 
