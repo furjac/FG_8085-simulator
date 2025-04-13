@@ -1,6 +1,10 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
+import uuid
 import os
+
 app = Flask(__name__)
+# Use environment variable for secret key with a fallback for development
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'dev_key_for_development_only')
 
 class Microprocessor8085:
     def __init__(self):
@@ -893,11 +897,40 @@ class Microprocessor8085:
             self.execute_instruction()
         return self.get_state()
 
-# Create a global instance of the microprocessor
-microprocessor = Microprocessor8085()
+# Remove the global microprocessor instance
+# Instead, we'll create a microprocessor manager to store instances per session
+
+class MicroprocessorManager:
+    def __init__(self):
+        self.instances = {}
+    
+    def get_instance(self, session_id):
+        if session_id not in self.instances:
+            self.instances[session_id] = Microprocessor8085()
+        return self.instances[session_id]
+    
+    def remove_instance(self, session_id):
+        if session_id in self.instances:
+            del self.instances[session_id]
+
+# Create a global instance of the manager
+processor_manager = MicroprocessorManager()
+
+# Helper function to get or create session ID
+def get_session_id():
+    if 'session_id' not in session:
+        session['session_id'] = str(uuid.uuid4())
+    return session['session_id']
+
+# Helper function to get the microprocessor instance for current session
+def get_microprocessor():
+    session_id = get_session_id()
+    return processor_manager.get_instance(session_id)
 
 @app.route('/')
 def index():
+    # Ensure session is initialized when user first visits
+    get_session_id()
     return render_template('index.html')
 
 @app.route('/help')
@@ -914,11 +947,13 @@ def donate():
 
 @app.route('/api/reset', methods=['POST'])
 def reset():
+    microprocessor = get_microprocessor()
     microprocessor.reset()
     return jsonify(microprocessor.get_state())
 
 @app.route('/api/load', methods=['POST'])
 def load_program():
+    microprocessor = get_microprocessor()
     data = request.get_json()
     program = [int(x, 16) for x in data['program'].split()]
     start_address = int(data.get('start_address', 0))  # Default to 0 if not provided
@@ -927,11 +962,13 @@ def load_program():
 
 @app.route('/api/step', methods=['POST'])
 def step():
+    microprocessor = get_microprocessor()
     microprocessor.execute_instruction()
     return jsonify(microprocessor.get_state())
 
 @app.route('/api/goto', methods=['POST'])
 def goto():
+    microprocessor = get_microprocessor()
     data = request.get_json()
     address = data.get('address', 0)
     
@@ -956,6 +993,7 @@ def goto():
 
 @app.route('/api/write', methods=['POST'])
 def write():
+    microprocessor = get_microprocessor()
     data = request.get_json()
     address = data.get('address', 0)
     value = data.get('value', 0)
@@ -982,6 +1020,7 @@ def write():
 
 @app.route('/api/execute', methods=['POST'])
 def execute():
+    microprocessor = get_microprocessor()
     try:
         microprocessor.execute_instruction()
     except Exception as e:
@@ -998,6 +1037,7 @@ def execute():
 
 @app.route('/api/run', methods=['POST'])
 def run():
+    microprocessor = get_microprocessor()
     try:
         state = microprocessor.run_until_halt()
         return jsonify(state)
@@ -1006,6 +1046,7 @@ def run():
 
 @app.route('/execute_instruction', methods=['POST'])
 def execute_instruction():
+    microprocessor = get_microprocessor()
     try:
         data = request.get_json()
         address = data.get('address')
@@ -1085,6 +1126,7 @@ def execute_instruction():
 
 @app.route('/run_program', methods=['POST'])
 def run_program():
+    microprocessor = get_microprocessor()
     try:
         # Run the program until HLT is encountered
         while True:
@@ -1116,6 +1158,7 @@ def run_program():
 @app.route('/get_memory', methods=['GET'])
 def get_memory():
     """Get the current memory state."""
+    microprocessor = get_microprocessor()
     try:
         # Return the current memory state
         return jsonify({
@@ -1128,6 +1171,7 @@ def get_memory():
 
 @app.route('/run_from_address', methods=['POST'])
 def run_from_address():
+    microprocessor = get_microprocessor()
     try:
         data = request.get_json()
         start_address = data.get('address', 0)
@@ -1183,6 +1227,7 @@ def run_from_address():
 
 @app.route('/execute_instructions', methods=['POST'])
 def execute_instructions():
+    microprocessor = get_microprocessor()
     try:
         data = request.get_json()
         instructions = data.get('instructions', [])
@@ -1504,4 +1549,3 @@ def format_machine_code(opcode, memory, pc):
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port, debug=False)
-
